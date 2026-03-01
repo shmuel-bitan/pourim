@@ -176,87 +176,30 @@
     </div>
   </div>
 
-  <script>
-   const PAIRS = {
-  // Filles
-  sarah: "noa",
-  noa: "tata",
-  tata: "judith",
-  judith: "tati",
-  tati: "sarah",
-
-  // Garçons
-  shmuel: "papa",
-  papa: "harry",
-  harry: "tonton_daniel",
-  tonton_daniel: "shmuel"
-};
-
-    const DISPLAY = {
-      shmuel: "Shmuel",
-      sarah: "Sarah",
-      papa: "Papa",
-      tati: "Tati",
-      tata: "Tata",
-      judith: "Judith",
-      noa: "Noa",
-      guil: "Guil",
-      harry: "Harry",
-      daniel: "Daniel"
-    };
-    const savedUser = localStorage.getItem("secret_pourim_user");
-
-if (savedUser) {
-  const resultBox = document.getElementById("result");
-  const resultText = document.getElementById("result-text");
-  const resultName = document.getElementById("result-name");
-  const inputField = document.getElementById("name-input");
-  const button = document.querySelector("button");
-
-  inputField.disabled = true;
-  button.disabled = true;
-
-  resultText.textContent = `Chut... ${DISPLAY[savedUser]} tu es tombé(e) sur :`;
-  resultName.textContent = DISPLAY[PAIRS[savedUser]];
-  resultBox.classList.add("show");
-}
-    function draw() {
-  const input = document
-    .getElementById("name-input")
-    .value
-    .trim()
-    .toLowerCase();
-
-  const resultBox = document.getElementById("result");
-  const resultText = document.getElementById("result-text");
-  const resultName = document.getElementById("result-name");
-  const errorBox = document.getElementById("error");
-
-  resultBox.classList.remove("show");
-  errorBox.textContent = "";
-
-  if (!input) {
-    errorBox.textContent = "Entre ton prénom avant de continuer.";
-    return;
-  }
-
-  if (!PAIRS[input]) {
-    errorBox.textContent = "Prénom non reconnu. Vérifie l'orthographe.";
-    return;
-  }
-
-  // On sauvegarde seulement si tout est valide
-  localStorage.setItem("secret_pourim_user", input);
-
-  const target = PAIRS[input];
-
-  resultText.textContent = `Chut... ${DISPLAY[input]} tu es tombé(e) sur :`;
-  resultName.textContent = DISPLAY[target];
-
-  resultBox.classList.add("show");
-}
-    }
-  </script>
+  <script> const PAIRS = { 
+  //Filles 
+  sarah: "noa", noa: "tata", tata: "judith", judith: "tati", tati: "sarah", 
+  // Garçons 
+  shmuel: "papa", papa: "harry", harry: "tonton_daniel", tonton_daniel: "shmuel" };
+    const DISPLAY = { shmuel: "Shmuel", sarah: "Sarah", papa: "Papa", tati: "Tati", tata: "Tata", judith: "Judith", noa: "Noa", guil: "Guil", harry: "Harry", daniel: "Daniel" };
+    function draw()  {
+      const input = document.getElementById("name-input").value.trim().toLowerCase();
+      const resultBox = document.getElementById("result"); 
+      const resultText = document.getElementById("result-text");
+      const resultName = document.getElementById("result-name");
+      const errorBox = document.getElementById("error");
+      resultBox.classList.remove("show"); errorBox.textContent = "";
+      if (!input) {
+        errorBox.textContent = "Entre ton prénom avant de continuer."; 
+        return;
+      } 
+      if (!PAIRS[input]) { 
+        errorBox.textContent = "Prénom non reconnu. Vérifie l'orthographe."; 
+        return; 
+      }
+      const target = PAIRS[input]; resultText.textContent = Chut... ${DISPLAY[input]} tu es tombé(e) sur :;
+      resultName.textContent = DISPLAY[target];
+  resultBox.classList.add("show"); } </script>
 
 </body>
 </html>
