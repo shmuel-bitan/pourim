@@ -204,8 +204,24 @@
       harry: "Harry",
       daniel: "Daniel"
     };
+    const savedUser = localStorage.getItem("secret_pourim_user");
 
+if (savedUser) {
+  const resultBox = document.getElementById("result");
+  const resultText = document.getElementById("result-text");
+  const resultName = document.getElementById("result-name");
+  const inputField = document.getElementById("name-input");
+  const button = document.querySelector("button");
+
+  inputField.disabled = true;
+  button.disabled = true;
+
+  resultText.textContent = `Chut... ${DISPLAY[savedUser]} tu es tombé(e) sur :`;
+  resultName.textContent = DISPLAY[PAIRS[savedUser]];
+  resultBox.classList.add("show");
+}
     function draw() {
+      localStorage.setItem("secret_pourim_user", input);
       const input = document.getElementById("name-input").value.trim().toLowerCase();
       const resultBox = document.getElementById("result");
       const resultText = document.getElementById("result-text");
