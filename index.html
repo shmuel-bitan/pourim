@@ -221,32 +221,40 @@ if (savedUser) {
   resultBox.classList.add("show");
 }
     function draw() {
-      localStorage.setItem("secret_pourim_user", input);
-      const input = document.getElementById("name-input").value.trim().toLowerCase();
-      const resultBox = document.getElementById("result");
-      const resultText = document.getElementById("result-text");
-      const resultName = document.getElementById("result-name");
-      const errorBox = document.getElementById("error");
+  const input = document
+    .getElementById("name-input")
+    .value
+    .trim()
+    .toLowerCase();
 
-      resultBox.classList.remove("show");
-      errorBox.textContent = "";
+  const resultBox = document.getElementById("result");
+  const resultText = document.getElementById("result-text");
+  const resultName = document.getElementById("result-name");
+  const errorBox = document.getElementById("error");
 
-      if (!input) {
-        errorBox.textContent = "Entre ton prénom avant de continuer.";
-        return;
-      }
+  resultBox.classList.remove("show");
+  errorBox.textContent = "";
 
-      if (!PAIRS[input]) {
-        errorBox.textContent = "Prénom non reconnu. Vérifie l'orthographe.";
-        return;
-      }
+  if (!input) {
+    errorBox.textContent = "Entre ton prénom avant de continuer.";
+    return;
+  }
 
-      const target = PAIRS[input];
+  if (!PAIRS[input]) {
+    errorBox.textContent = "Prénom non reconnu. Vérifie l'orthographe.";
+    return;
+  }
 
-      resultText.textContent = `Chut... ${DISPLAY[input]} tu es tombé(e) sur :`;
-      resultName.textContent = DISPLAY[target];
+  // On sauvegarde seulement si tout est valide
+  localStorage.setItem("secret_pourim_user", input);
 
-      resultBox.classList.add("show");
+  const target = PAIRS[input];
+
+  resultText.textContent = `Chut... ${DISPLAY[input]} tu es tombé(e) sur :`;
+  resultName.textContent = DISPLAY[target];
+
+  resultBox.classList.add("show");
+}
     }
   </script>
 
