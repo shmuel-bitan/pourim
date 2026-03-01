@@ -1,442 +1,41 @@
-
-<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Tirage au sort — Mishloach Manot (Pourim)</title>
-<style>
-  /* Mobile-first Purim theme */
-  :root{
-    --bg:#FFF8F0;
-    --card:#fff;
-    --accent:#A63E7A; /* deep pink/purple */
-    --accent-2:#F6A623; /* gold */
-    --muted:#6b6b6b;
-    --glass: rgba(255,255,255,0.6);
-    --radius:14px;
-    --shadow: 0 6px 18px rgba(16,16,16,0.08);
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:
-      radial-gradient(1000px 400px at -10% 10%, rgba(166,62,122,0.06), transparent 10%),
-      linear-gradient(180deg,#FFF8F0 0%, #FFF3F7 100%);
-    color:#111;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    padding:18px;
-    box-sizing:border-box;
-  }
-
-  .app {
-    max-width:780px;
-    margin:0 auto;
-  }
-
-  header {
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:14px;
-  }
-  .brand {
-    width:56px;height:56px;border-radius:12px;
-    background:linear-gradient(135deg,var(--accent),#6c2b7a);
-    display:flex;align-items:center;justify-content:center;
-    color:white;font-weight:700;font-size:22px;
-    box-shadow: var(--shadow);
-  }
-  h1{font-size:18px;margin:0}
-  p.lead{margin:6px 0 0;color:var(--muted);font-size:13px}
-
-  .card {
-    background:var(--card);
-    border-radius:var(--radius);
-    padding:14px;
-    box-shadow:var(--shadow);
-    margin-bottom:12px;
-  }
-
-  label{display:block;font-weight:600;margin-bottom:8px;font-size:13px}
-  textarea{
-    width:100%;
-    min-height:120px;
-    resize:vertical;
-    padding:12px;border-radius:10px;border:1px dashed #f0e6ef;
-    font-size:14px;line-height:1.4;background:transparent;
-  }
-  .hint{font-size:12px;color:var(--muted);margin-top:8px}
-
-  .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  .btn{
-    background:linear-gradient(180deg,var(--accent),#7b2e6e);
-    color:white;padding:12px 14px;border-radius:12px;border:0;font-weight:700;
-    box-shadow: 0 6px 18px rgba(122,46,100,0.18);cursor:pointer;font-size:15px;
-    display:inline-flex;align-items:center;gap:10px;
-  }
-  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(166,62,122,0.12);box-shadow:none;font-weight:600}
-  .small{padding:8px 10px;font-size:13px;border-radius:10px}
-
-  /* Hebrew label above main button */
-  .hebrew {
-    font-weight:800;
-    font-size:16px;
-    margin-bottom:8px;
-    display:block;
-    direction:rtl;
-    text-align:center;
-    color:var(--accent);
-  }
-
-  .pairs {margin-top:12px;display:grid;gap:8px}
-  .pair {
-    display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;
-    background:linear-gradient(180deg, rgba(246,166,35,0.06), rgba(166,62,122,0.02));
-    border:1px solid rgba(0,0,0,0.03);font-weight:600;
-  }
-  .pair .who {display:flex;gap:12px;align-items:center}
-  .avatar{
-    width:36px;height:36px;border-radius:10px;background:var(--glass);display:inline-flex;align-items:center;justify-content:center;font-weight:700;
-    box-shadow: 0 4px 10px rgba(16,16,16,0.04);
-  }
-  .muted{color:var(--muted);font-weight:600}
-  .export{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-
-  footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
-
-  /* responsive tweaks */
-  @media(min-width:720px){
-    body{padding:28px}
-    h1{font-size:20px}
-  }
-
-  /* playful mask decoration */
-  .mask {
-    font-size:40px;margin-left:auto;color:var(--accent-2);filter:drop-shadow(0 6px 18px rgba(246,166,35,0.12));
-  }
-</style>
-</head>
-<body>
-  <div class="app">
-    <header>
-      <div class="brand">פ</div>
-      <div>
-        <h1>Mishloach Manot — Tirage de Pourim</h1>
-        <p class="lead">Télécharge les paires ou colle les tuples ; le site montre "qui a pioché qui" et permet d’exporter.</p>
-      </div>
-      <div class="mask" aria-hidden>🎭</div>
-    </header>
-
-    <main>
-      <section class="card" id="inputCard">
-        <label for="tuples">Tuples (un par ligne) — format : <code>Donneur,Receveur</code></label>
-        <textarea id="tuples" placeholder="Exemple :
-Alice,Bob
-Claire,David
-Eli,Fatima"></textarea>
-        <div class="hint">Astuce : tu peux coller des lignes CSV, ou générer toi-même. Les doublons seront remarqués.</div>
-
-        <div class="controls" style="margin-top:14px">
-          <div style="flex:1">
-            <!-- Hebrew phrase requested by user above the button -->
-            <div class="hebrew">ipil our ou agoral — הגרלה</div>
-            <button class="btn" id="parseBtn">Tirer / Afficher les paires</button>
-          </div>
-
-          <div style="display:flex;gap:8px">
-            <button class="btn ghost small" id="shuffleBtn">Mélanger</button>
-            <button class="btn ghost small" id="clearBtn">Effacer</button>
-          </div>
-        </div>
-
-        <div class="export">
-          <button class="btn ghost small" id="exportJson">Exporter JSON</button>
-          <button class="btn ghost small" id="exportCsv">Exporter CSV</button>
-          <button class="btn ghost small" id="loadSample">Charger exemple</button>
-        </div>
-      </section>
-
-      <section class="card" id="resultCard" aria-live="polite">
-        <label>Résultats</label>
-        <div id="pairs" class="pairs">
-          <div class="muted">Aucun tirage pour le moment — clique sur "Tirer / Afficher les paires".</div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <div>Bonne fête de Pourim! 🎉 — site local, tout fonctionne hors-ligne.</div>
-    </footer>
-  </div>
-
-<script>
-/* Single-file JS: parse, validate, show, export */
-(function(){
-  const tuplesTA = document.getElementById('tuples');
-  const parseBtn = document.getElementById('parseBtn');
-  const pairsDiv = document.getElementById('pairs');
-  const shuffleBtn = document.getElementById('shuffleBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const exportJson = document.getElementById('exportJson');
-  const exportCsv = document.getElementById('exportCsv');
-  const loadSample = document.getElementById('loadSample');
-
-  function parseTuples(text){
-    const lines = text.split('\\n').map(l=>l.trim()).filter(Boolean);
-    const pairs = [];
-    for(let i=0;i<lines.length;i++){
-      // Accept comma or semicolon or tab separated
-      const line = lines[i];
-      // allow "a,b,c" -> take first two only
-      const sep = line.includes(',') ? ',' : (line.includes(';') ? ';' : '\\t');
-      const parts = line.split(sep).map(p=>p.trim()).filter(Boolean);
-      if(parts.length < 2) {
-        // try space-splitting fallback
-        const sp = line.split(/\s+/);
-        if(sp.length>=2) parts.splice(0, parts.length, sp[0], sp[1]);
-      }
-      if(parts.length >= 2){
-        pairs.push({from: parts[0], to: parts[1], raw: line, idx: i});
-      } else {
-        // mark as invalid
-        pairs.push({from: null, to: null, raw: line, idx: i, invalid:true});
-      }
-    }
-    return pairs;
-  }
-
-  function renderPairs(pairs){
-    pairsDiv.innerHTML = '';
-    if(!pairs || pairs.length===0){
-      pairsDiv.innerHTML = '<div class="muted">Aucun tirage pour le moment — clique sur "Tirer / Afficher les paires".</div>';
-      return;
-    }
-    // detect duplicates or self-assignments
-    const receivers = {};
-    const senders = {};
-    pairs.forEach(p=>{
-      if(p.invalid) return;
-      receivers[p.to] = (receivers[p.to]||0)+1;
-      senders[p.from] = (senders[p.from]||0)+1;
-    });
-
-    pairs.forEach(p=>{
-      if(p.invalid){
-        const el = document.createElement('div');
-        el.className = 'pair';
-        el.innerHTML = '<div class="who"><div class="avatar">?</div><div><div style="font-weight:700">Ligne invalide</div><div style="font-size:12px;color:var(--muted)">'+escapeHtml(p.raw)+'</div></div></div><div class="muted">⚠</div>';
-        pairsDiv.appendChild(el);
-        return;
-      }
-      const el = document.createElement('div');
-      el.className = 'pair';
-      const dupR = receivers[p.to] > 1 ? ' • (multiple reç.)' : '';
-      const dupF = senders[p.from] > 1 ? ' • (multiple env.)' : '';
-      el.innerHTML = '<div class="who"><div class="avatar">'+escapeTextInitials(p.from)+'</div><div><div style="font-weight:800">'+escapeHtml(p.from)+'</div><div style="font-size:12px;color:var(--muted)">envoie à <strong>'+escapeHtml(p.to)+'</strong></div></div></div><div class="muted">'+dupR+dupF+'</div>';
-      pairsDiv.appendChild(el);
-    });
-  }
-
-  function escapeHtml(s){
-    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-  function escapeTextInitials(s){
-    if(!s) return '?';
-    const parts = s.split(/\\s+/).filter(Boolean);
-    return (parts.length>1 ? parts[0][0]+parts[1][0] : (parts[0][0]||'?')).toUpperCase();
-  }
-
-  function getCurrentPairs(){
-    return parseTuples(tuplesTA.value);
-  }
-
-  parseBtn.addEventListener('click', ()=>{
-    const txt = tuplesTA.value.trim();
-    if(!txt){
-      alert('Colle des tuples dans la zone de texte (ex: Alice,Bob) puis clique à nouveau.');
-      return;
-    }
-    const pairs = getCurrentPairs();
-    renderPairs(pairs);
-  });
-
-  shuffleBtn.addEventListener('click', ()=>{
-    // shuffle lines (Fisher-Yates) while keeping invalid lines in place? we'll shuffle valid lines only
-    const pairs = getCurrentPairs();
-    const valid = pairs.filter(p=>!p.invalid);
-    if(valid.length <= 1){ alert("Rien à mélanger — au moins 2 tuples valides requis."); return; }
-    // shuffle valid mapping of recipients among senders to produce random assignment (safe fallback)
-    // We'll randomize order of 'to' while keeping 'from' same length to avoid self-assign if equal names present we try to re-shuffle few times
-    const froms = valid.map(p=>p.from);
-    let tos = valid.map(p=>p.to);
-    function shuffleArr(a){
-      for(let i=a.length-1;i>0;i--){
-        const j=Math.floor(Math.random()*(i+1));
-        [a[i],a[j]]=[a[j],a[i]];
-      }
-    }
-    let attempts=0;
-    do{
-      shuffleArr(tos);
-      attempts++;
-      // ensure minimal condition: avoid exact self mapping if possible
-      var ok = true;
-      for(let i=0;i<tos.length;i++){
-        if(froms[i] === tos[i]) { ok=false; break; }
-      }
-    } while(!ok && attempts < 50);
-    // put back into textarea (rebuild whole text preserving invalid lines)
-    let outLines = [];
-    let validIndex = 0;
-    for(const p of pairs){
-      if(p.invalid){
-        outLines.push(p.raw);
-      } else {
-        outLines.push(froms[validIndex] + ',' + tos[validIndex]);
-        validIndex++;
-      }
-    }
-    tuplesTA.value = outLines.join('\\n');
-    renderPairs(parseTuples(tuplesTA.value));
-  });
-
-  clearBtn.addEventListener('click', ()=>{
-    if(!confirm('Effacer tout le texte et les résultats ?')) return;
-    tuplesTA.value = '';
-    renderPairs([]);
-  });
-
-  exportJson.addEventListener('click', ()=>{
-    const pairs = getCurrentPairs();
-    const payload = pairs.map(p=>({
-      from: p.from, to: p.to, raw: p.raw, invalid: !!p.invalid, line: p.idx+1
-    }));
-    downloadData(JSON.stringify(payload, null, 2), 'mishloach_pairs.json', 'application/json');
-  });
-
-  exportCsv.addEventListener('click', ()=>{
-    const pairs = getCurrentPairs();
-    const rows = [['from','to','invalid','raw','line']];
-    pairs.forEach(p=> rows.push([p.from||'', p.to||'', p.invalid ? '1':'0', p.raw.replace(/"/g,""""), p.idx+1]));
-    const csv = rows.map(r=> r.map(c=> '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\\n');
-    downloadData(csv, 'mishloach_pairs.csv', 'text/csv');
-  });
-
-  loadSample.addEventListener('click', ()=>{
-    const sample = [
-      'Yael,Shmuel',
-      'Miriam,Levi',
-      'David,Noa',
-      "Avi,Esther",
-      "Rina,Itai"
-    ].join('\\n');
-    tuplesTA.value = sample;
-    renderPairs(parseTuples(sample));
-  });
-
-  function downloadData(content, filename, mime){
-    const blob = new Blob([content], {type: mime||'application/octet-stream'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 300);
-  }
-
-  // accessibility: enter in textarea + ctrl+enter triggers parse
-  tuplesTA.addEventListener('keydown', (e)=>{
-    if((e.ctrlKey||e.metaKey) && e.key === 'Enter'){ parseBtn.click(); }
-  });
-
-  // initial sample on first load for convenience
-  // renderPairs([]) // no automatic sample
-})();
-</script>
-</body>
-</html>
-Si tu veux maintenant, colle-moi tes tuples réels (ligne par ligne, format Donneur,Receveur) et je peux :
-
-te renvoyer le fichier HTML avec ces tuples déjà pré-remplis, ou
-
-te générer directement le JSON/CSV des paires prêtes à l’emploi.
-
-Dis-moi ce que tu préfères — ou colle les tuples et je le transforme tout de suite.
-
-
-Vous avez dit :
-les tuples je vais te les donner on va les implémenter apres deja on fait le site en plui meme et en gros quand quelqun donne son nom tu lui fais un annimation sympatique et tu revel le om de celui aqui il doit offrir
-
-ChatGPT a dit :
-Parfait 😎 on va faire une vraie expérience “tirage secret”, mobile-first, avec :
-
-✅ L’utilisateur entre son nom
-
-🎭 Animation festive (Pourim vibe)
-
-🎊 Révélation stylée du nom de la personne à qui il doit offrir
-
-🔒 Les correspondances seront stockées dans des tuples que tu me donneras ensuite
-
-📱 100% mobile first
-
-📄 1 seul fichier HTML (CSS + JS inclus)
-
-Voici la V1 prête, avec des données d’exemple (qu’on remplacera par tes vrais tuples après).
-
-Copie-colle dans index.html :
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pourim - Tirage Mishloach Manot</title>
+<title>Tirage Mishloach Manot</title>
 
 <style>
 :root{
-  --primary:#7b2cbf;
-  --secondary:#ff9f1c;
-  --bg:#fff8f0;
+  --primary:#6a00f4;
+  --bg1:#fff8f0;
+  --bg2:#ffeef8;
 }
 
 body{
   margin:0;
   font-family: system-ui, -apple-system, sans-serif;
-  background: linear-gradient(180deg,var(--bg),#ffeef8);
+  background: linear-gradient(180deg,var(--bg1),var(--bg2));
   display:flex;
   justify-content:center;
   align-items:center;
-  min-height:100vh;
-  text-align:center;
+  height:100vh;
   padding:20px;
 }
 
-.container{
-  width:100%;
-  max-width:420px;
-}
-
 .card{
+  width:100%;
+  max-width:400px;
   background:white;
-  padding:25px;
+  padding:28px;
   border-radius:18px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+  text-align:center;
 }
 
 h1{
-  margin:0;
+  margin:0 0 20px 0;
   font-size:20px;
-}
-
-.hebrew{
-  direction:rtl;
-  font-weight:bold;
-  color:var(--primary);
-  margin:10px 0 20px 0;
-  font-size:18px;
 }
 
 input{
@@ -446,6 +45,11 @@ input{
   border:1px solid #eee;
   font-size:16px;
   margin-bottom:15px;
+  outline:none;
+}
+
+input:focus{
+  border-color:var(--primary);
 }
 
 button{
@@ -453,7 +57,7 @@ button{
   padding:14px;
   border:none;
   border-radius:12px;
-  background:linear-gradient(135deg,var(--primary),#5a189a);
+  background:var(--primary);
   color:white;
   font-weight:bold;
   font-size:16px;
@@ -461,81 +65,73 @@ button{
 }
 
 button:active{
-  transform:scale(0.97);
+  transform:scale(0.98);
 }
 
 .result{
   margin-top:20px;
   font-size:18px;
-  font-weight:bold;
-  min-height:40px;
+  min-height:50px;
+  font-weight:600;
 }
 
 .reveal{
-  animation:pop 0.6s ease forwards;
+  animation:pop 0.5s ease forwards;
 }
 
 @keyframes pop{
-  0%{transform:scale(0.6);opacity:0}
-  60%{transform:scale(1.1)}
-  100%{transform:scale(1);opacity:1}
+  0%{opacity:0;transform:scale(0.6);}
+  100%{opacity:1;transform:scale(1);}
 }
 
 .spinner{
   margin-top:15px;
-  font-size:30px;
-  animation:spin 1s linear infinite;
+  font-size:22px;
+  animation:spin 0.8s linear infinite;
 }
 
 @keyframes spin{
-  from{transform:rotate(0deg)}
-  to{transform:rotate(360deg)}
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
 }
 
-.hidden{display:none}
+.hidden{display:none;}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <div class="card">
+<div class="card">
 
-    <h1>Tirage Mishloach Manot 🎭</h1>
+  <h1>Tirage Mishloach Manot 🎭</h1>
 
-    <div class="hebrew">
-      הפיל פור הוא הגורל
-    </div>
+  <input type="text" id="nameInput" placeholder="Entre ton prénom">
 
-    <input type="text" id="nameInput" placeholder="Entre ton prénom">
+  <button onclick="draw()">Découvrir</button>
 
-    <button onclick="draw()">Découvrir</button>
+  <div id="spinner" class="spinner hidden">🎁</div>
+  <div id="result" class="result"></div>
 
-    <div class="spinner hidden" id="spinner">🎉</div>
-
-    <div class="result" id="result"></div>
-
-  </div>
 </div>
 
 <script>
 
-// ==========================
-//  TUPLES (EXEMPLE TEMPORAIRE)
-//  On remplacera ça par les tiens
-// ==========================
+// 🔒 Mets ici tes vrais tuples plus tard
 const pairs = {
-  "Yael": "David",
-  "David": "Miriam",
-  "Miriam": "Avi",
-  "Avi": "Yael"
+  sarah: "noa",
+  noa: "tata",
+  tata: "judith",
+  judith: "tati",
+  tati: "sarah",
+
+  shmuel: "papa",
+  papa: "harry",
+  harry: "tonton_daniel",
+  tonton_daniel: "shmuel"
 };
 
-// ==========================
-// DRAW FUNCTION
-// ==========================
 function draw(){
-  const name = document.getElementById("nameInput").value.trim();
+  const name = document.getElementById("nameInput").value.trim().toLowerCase();
   const resultDiv = document.getElementById("result");
   const spinner = document.getElementById("spinner");
 
@@ -547,297 +143,19 @@ function draw(){
 
     if(pairs[name]){
       resultDiv.innerHTML = `
-        🎁 Tu dois offrir à : <br><br>
-        <span class="reveal" style="font-size:22px;color:#7b2cbf">
+        Tu dois offrir à :
+        <div class="reveal" style="margin-top:8px;font-size:22px;color:#6a00f4">
           ${pairs[name]}
-        </span>
+        </div>
       `;
     } else {
-      resultDiv.innerHTML = "Nom introuvable 😅";
+      resultDiv.innerHTML = "Nom introuvable";
     }
 
-  }, 2000); // animation 2 secondes
+  }, 1000);
 }
 
 </script>
 
 </body>
 </html>
-🎭 Ce que fait cette version :
-L’utilisateur entre son nom
-
-Il clique sur "Découvrir"
-
-🎉 Animation de 2 secondes
-
-Révélation avec effet “pop”
-
-Si le nom n’existe pas → message d’erreur
-
-🔜 Prochaine étape
-Quand tu me donnes tes tuples réels :
-
-je remplace le const pairs = {...}
-
-je peux ajouter :
-
-🔐 système secret (mot de passe)
-
-📱 effet confettis
-
-🎊 sons
-
-🎭 animation masque qui s’ouvre
-
-🌙 thème encore plus “Pourim luxe”
-
-Dis-moi si on le rend plus “fun communautaire” ou plus “classe élégant synagogue high level” 😎
-
-
-Vous avez dit :
-top améliore un peu le desing on veut un truc plus sympa et aussi ajoute une meilleur annimation pour les tirage stp
-
-ChatGPT a dit :
-Parfait 😎
-On passe en version premium Pourim 🎭✨ :
-
-🎨 Design plus festif (dégradés violets/or, glow, cartes plus modernes)
-
-🎊 Animation de tirage plus immersive (roulette + confettis)
-
-💫 Révélation spectaculaire
-
-📱 Toujours mobile-first
-
-📄 Toujours un seul fichier HTML
-
-Voici la nouvelle version améliorée 👇
-(les tuples sont encore en exemple — on les remplacera après)
-
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pourim - Tirage Mishloach Manot</title>
-
-<style>
-:root{
-  --purple:#6a00f4;
-  --purple-dark:#4b00b5;
-  --gold:#ffbe0b;
-  --bg1:#fff7ed;
-  --bg2:#ffe8f3;
-}
-
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, sans-serif;
-  background: linear-gradient(180deg,var(--bg1),var(--bg2));
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:20px;
-}
-
-.container{
-  width:100%;
-  max-width:420px;
-}
-
-.card{
-  background:white;
-  padding:28px;
-  border-radius:20px;
-  box-shadow:0 15px 35px rgba(0,0,0,0.1);
-  text-align:center;
-  position:relative;
-  overflow:hidden;
-}
-
-h1{
-  margin:0;
-  font-size:22px;
-}
-
-.hebrew{
-  direction:rtl;
-  font-weight:bold;
-  color:var(--purple);
-  margin:12px 0 22px 0;
-  font-size:19px;
-}
-
-input{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid #eee;
-  font-size:16px;
-  margin-bottom:15px;
-  outline:none;
-}
-
-input:focus{
-  border-color:var(--purple);
-  box-shadow:0 0 0 3px rgba(106,0,244,0.15);
-}
-
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--purple),var(--purple-dark));
-  color:white;
-  font-weight:bold;
-  font-size:16px;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-button:active{
-  transform:scale(0.97);
-}
-
-.roulette{
-  font-size:24px;
-  margin-top:18px;
-  height:30px;
-}
-
-.result{
-  margin-top:20px;
-  font-size:20px;
-  font-weight:bold;
-  min-height:60px;
-}
-
-.reveal{
-  animation:revealPop 0.8s ease forwards;
-}
-
-@keyframes revealPop{
-  0%{transform:scale(0.4) rotate(-10deg);opacity:0}
-  60%{transform:scale(1.2) rotate(5deg)}
-  100%{transform:scale(1) rotate(0);opacity:1}
-}
-
-.confetti{
-  position:absolute;
-  width:8px;
-  height:8px;
-  background:var(--gold);
-  animation:fall 2s linear forwards;
-}
-
-@keyframes fall{
-  to{
-    transform:translateY(400px) rotate(720deg);
-    opacity:0;
-  }
-}
-
-.hidden{display:none}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-  <div class="card" id="card">
-
-    <h1>Mishloach Manot 🎭</h1>
-
-    <div class="hebrew">
-      הפיל פור הוא הגורל
-    </div>
-
-    <input type="text" id="nameInput" placeholder="Entre ton prénom">
-
-    <button onclick="draw()">Découvrir mon tirage 🎁</button>
-
-    <div class="roulette hidden" id="roulette">🎭 🎉 🎁 🎭 🎉 🎁</div>
-
-    <div class="result" id="result"></div>
-
-  </div>
-</div>
-
-<script>
-
-// ===== TUPLES EXEMPLE (à remplacer plus tard) =====
-const pairs = {
-  const PAIRS = {
-  // Filles
-  sarah: "noa",
-  noa: "tata",
-  tata: "judith",
-  judith: "tati",
-  tati: "sarah",
-
-  // Garçons
-  shmuel: "papa",
-  papa: "harry",
-  harry: "tonton_daniel",
-  tonton_daniel: "shmuel"
-};
-};
-
-// ===== ANIMATION CONFETTIS =====
-function launchConfetti(){
-  const card = document.getElementById("card");
-  for(let i=0;i<25;i++){
-    const conf = document.createElement("div");
-    conf.className = "confetti";
-    conf.style.left = Math.random()*100 + "%";
-    conf.style.background = ["#ffbe0b","#6a00f4","#ff006e"][Math.floor(Math.random()*3)];
-    conf.style.animationDuration = (1.5 + Math.random())+"s";
-    card.appendChild(conf);
-
-    setTimeout(()=>conf.remove(),2000);
-  }
-}
-
-// ===== DRAW FUNCTION =====
-function draw(){
-  const name = document.getElementById("nameInput").value.trim();
-  const resultDiv = document.getElementById("result");
-  const roulette = document.getElementById("roulette");
-
-  resultDiv.innerHTML = "";
-  roulette.classList.remove("hidden");
-
-  let emojis = ["🎭","🎉","🎁","🍷","🍪"];
-  let counter = 0;
-
-  let spin = setInterval(()=>{
-    roulette.innerHTML = emojis[Math.floor(Math.random()*emojis.length)];
-    counter++;
-    if(counter > 20){
-      clearInterval(spin);
-      roulette.classList.add("hidden");
-
-      if(pairs[name]){
-        resultDiv.innerHTML = `
-          🎁 Tu dois offrir à :
-          <div class="reveal" style="margin-top:10px;font-size:24px;color:#6a00f4">
-            ${pairs[name]}
-          </div>
-        `;
-        launchConfetti();
-      } else {
-        resultDiv.innerHTML = "Nom introuvable 😅";
-      }
-
-    }
-  },100);
-}
-
-</script>
-
-</body>
-</html>
-
-
