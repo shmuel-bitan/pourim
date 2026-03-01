@@ -1,0 +1,316 @@
+ <!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tirage au sort - Mishloach Manot (Pourim)</title>
+<style>
+  :root{
+    --bg:#fff7ef;
+    --card:#fff;
+    --accent:#8b0000; /* Pourpre-Purim */
+    --accent-2:#ffb74d; /* orange festif */
+    --muted:#6b6b6b;
+    --glass: rgba(255,255,255,0.7);
+  }
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  body{
+    background: linear-gradient(180deg, #fff7ef 0%, #fff1e0 40%, #fff7f0 100%);
+    display:flex;align-items:flex-start;justify-content:center;padding:18px;
+  }
+  .wrap{
+    width:100%;max-width:760px;
+    display:flex;flex-direction:column;gap:12px;
+  }
+
+  header{
+    display:flex;gap:12px;align-items:center;
+  }
+  .logo{
+    width:56px;height:56px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),#ff4081);
+    display:flex;align-items:center;justify-content:center;color:white;font-weight:700;
+    box-shadow:0 6px 18px rgba(139,0,0,0.18);
+    font-size:22px;
+  }
+  h1{font-size:18px;margin:0;color:var(--accent);line-height:1;}
+  p.lead{margin:0;color:var(--muted);font-size:13px;}
+
+  main{
+    background:var(--card);border-radius:14px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06);
+  }
+
+  .field{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+  label.small{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
+  textarea{resize:vertical;min-height:90px;border-radius:10px;padding:10px;border:1px solid #f0d6d6;background:var(--glass);font-size:14px;}
+  input, select{padding:10px;border-radius:10px;border:1px solid #f0d6d6;background:var(--glass);font-size:15px;}
+
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  button{
+    background:linear-gradient(180deg,var(--accent),#b3003b);
+    color:white;border:0;padding:12px 16px;border-radius:12px;font-weight:600;
+    box-shadow:0 8px 18px rgba(139,0,0,0.18);flex:1;min-width:140px;
+  }
+  button.secondary{
+    background:transparent;color:var(--accent);border:1px solid #ffd6d6;box-shadow:none;font-weight:600;
+  }
+
+  .label-hebrew{display:block;text-align:center;font-size:20px;padding:6px 0;color:#222;margin-bottom:6px}
+  .hebrew-bubble{font-weight:700;color:#7a0000;font-size:22px;letter-spacing:1px}
+
+  .results{margin-top:12px;border-radius:10px;padding:10px;background:linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,250,240,0.9));box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);}
+  .pair{display:flex;justify-content:space-between;padding:8px 6px;border-bottom:1px dashed #f3e1e1;}
+  .pair:last-child{border-bottom:0;}
+  .name-left{font-weight:700;color:var(--accent);}
+  .name-right{color:var(--muted);font-weight:600;}
+  .small-note{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  footer{font-size:13px;color:var(--muted);text-align:center;margin-top:10px;}
+  .accent-pill{display:inline-block;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,var(--accent-2),#ffd180);font-weight:700;color:#5a1a00;margin-left:6px;font-size:13px;}
+
+  /* mobile-first */
+  @media(min-width:720px){
+    .controls{flex-wrap:nowrap;}
+    .logo{width:72px;height:72px;font-size:26px;border-radius:14px;}
+    h1{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">פ</div>
+      <div>
+        <h1>Mishloach Manot — Tirage de Pourim</h1>
+        <p class="lead">Mobile first • Colle des tuples plus bas ou laisse le site générer les attributions.</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="field">
+        <label class="small">Liste des participants (une par ligne)</label>
+        <textarea id="participantsInput" placeholder="Ex :&#10;Ari&#10;Miri&#10;David"></textarea>
+        <div class="small-note">Ou colle ici des tuples JSON (format détaillé plus bas) et clique <em>Charger tuples</em>.</div>
+      </div>
+
+      <div class="field">
+        <label class="small">Choisir le label hébreu au-dessus du bouton</label>
+        <select id="hebrewChoice">
+          <option value="agoral">אגורל</option>
+          <option value="ipilour">איפיל אור</option>
+          <option value="custom">Personnalisé...</option>
+        </select>
+        <input id="hebrewCustom" style="display:none;margin-top:6px" placeholder="Texte hébreu personnalisé (ex: אגורל)"/>
+      </div>
+
+      <div class="field" style="align-items:center">
+        <div class="label-hebrew">Label : <span id="hebrewLabel" class="hebrew-bubble">אגורל</span></div>
+      </div>
+
+      <div class="controls">
+        <button id="drawBtn">Lancer le tirage</button>
+        <button id="loadTuplesBtn" class="secondary">Charger tuples</button>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button id="exportJson" class="secondary">Exporter JSON</button>
+        <button id="exportCsv" class="secondary">Exporter CSV</button>
+        <button id="copyResults" class="secondary">Copier résultats</button>
+      </div>
+
+      <div id="results" class="results" aria-live="polite" style="display:none;margin-top:12px"></div>
+
+      <div class="small-note">
+        Format JSON de tuples attendu pour la fonction <code>loadTuples(tuples)</code> ou pour coller dans la zone ci-dessous :
+        <pre style="display:inline-block;background:#fff;padding:6px;border-radius:6px;margin:0">[
+  {"giver":"Ari","receiver":"Miri"},
+  {"giver":"Miri","receiver":"David"}
+]</pre>
+      </div>
+    </main>
+
+    <footer>
+      Pourim Sameach! <span class="accent-pill">מִשְׁלוֹחַ מָנוֹת</span>
+    </footer>
+  </div>
+
+<script>
+/*
+  Fonction publique pour charger des tuples externes :
+  - tuples : tableau d'objets { giver: "...", receiver: "..." }
+  Exemple:
+    loadTuples([{giver:"Ari", receiver:"Miri"}, {giver:"Miri", receiver:"David"}])
+  Le site affichera ces correspondances exactement.
+*/
+function loadTuples(tuples){
+  if(!Array.isArray(tuples)){
+    console.error('loadTuples: attend un tableau de tuples');
+    return;
+  }
+  // convert to internal map and render
+  window._externalTuples = tuples.map(t => ({giver:String(t.giver), receiver:String(t.receiver)}));
+  renderResults(window._externalTuples);
+  document.getElementById('results').style.display = 'block';
+}
+
+// internal helpers
+function parseParticipants(text){
+  // detect if text looks like JSON array of objects
+  const trimmed = text.trim();
+  if(!trimmed) return [];
+  if((trimmed.startsWith('[') && trimmed.includes('{'))){
+    try{
+      const parsed = JSON.parse(trimmed);
+      // if array of objects with giver/receiver -> load tuples
+      if(Array.isArray(parsed) && parsed.length && parsed[0].giver!==undefined){
+        loadTuples(parsed);
+        return null;
+      }
+    }catch(e){
+      // fall back to line parsing
+    }
+  }
+  // else split by lines and remove empties
+  return trimmed.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+}
+
+// derangement generator (avoid self-assignments)
+function generateDerangement(names){
+  if(names.length<=1) return names.map(n=>({giver:n, receiver:n}));
+  // simple algorithm: shuffle until no one maps to self, with limited retries
+  const maxRetries = 2000;
+  for(let attempt=0; attempt<maxRetries; attempt++){
+    const receivers = names.slice();
+    // Fisher-Yates shuffle
+    for(let i=receivers.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [receivers[i], receivers[j]] = [receivers[j], receivers[i]];
+    }
+    let ok = true;
+    for(let i=0;i<names.length;i++){
+      if(names[i] === receivers[i]){ ok = false; break;}
+    }
+    if(ok){
+      return names.map((g,i)=>({giver:g, receiver:receivers[i]}));
+    }
+  }
+  // fallback: simple rotation
+  const rotated = names.slice();
+  rotated.push(rotated.shift());
+  return names.map((g,i)=>({giver:g, receiver:rotated[i]}));
+}
+
+function renderResults(pairs){
+  const container = document.getElementById('results');
+  container.innerHTML = '';
+  if(!pairs || pairs.length===0){
+    container.style.display='none';
+    return;
+  }
+  pairs.forEach(p=>{
+    const el = document.createElement('div');
+    el.className='pair';
+    el.innerHTML = '<div class="name-left">'+escapeHtml(p.giver)+'</div><div class="name-right">→ '+escapeHtml(p.receiver)+'</div>';
+    container.appendChild(el);
+  });
+  // add summary
+  const summary = document.createElement('div');
+  summary.className='small-note';
+  summary.textContent = pairs.length + ' attribution' + (pairs.length>1?'s':'') + ' générée(s).';
+  container.appendChild(summary);
+  container.style.display='block';
+}
+
+// small escaper
+function escapeHtml(s){
+  return (''+s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+// UI wiring
+document.getElementById('hebrewChoice').addEventListener('change', function(){
+  const v = this.value;
+  const labelNode = document.getElementById('hebrewLabel');
+  const custom = document.getElementById('hebrewCustom');
+  if(v==='custom'){ custom.style.display='block'; custom.focus(); }
+  else{ custom.style.display='none'; }
+  if(v==='agoral') labelNode.textContent = 'אגורל';
+  else if(v==='ipilour') labelNode.textContent = 'איפיל אור';
+  else if(v==='custom') labelNode.textContent = custom.value || 'אגורל';
+});
+document.getElementById('hebrewCustom').addEventListener('input', function(){
+  document.getElementById('hebrewLabel').textContent = this.value || 'אגורל';
+});
+
+document.getElementById('drawBtn').addEventListener('click', function(){
+  const txt = document.getElementById('participantsInput').value;
+  const parsed = parseParticipants(txt);
+  if(parsed === null){
+    // JSON tuples already loaded by parseParticipants
+    return;
+  }
+  if(!parsed || parsed.length===0){
+    alert('Entrez au moins 2 participants, un par ligne, ou collez des tuples JSON.');
+    return;
+  }
+  if(parsed.length === 1){
+    alert('Au moins 2 participants requis.');
+    return;
+  }
+  const pairs = generateDerangement(parsed);
+  window._generated = pairs;
+  renderResults(pairs);
+});
+
+document.getElementById('loadTuplesBtn').addEventListener('click', function(){
+  const txt = document.getElementById('participantsInput').value.trim();
+  if(!txt){
+    alert('Colle ici un JSON de tuples, par ex : [ {"giver":"Ari","receiver":"Miri"} ]');
+    return;
+  }
+  try{
+    const parsed = JSON.parse(txt);
+    if(!Array.isArray(parsed)) throw new Error('Ce n\'est pas un tableau');
+    loadTuples(parsed);
+  }catch(e){
+    alert('JSON invalide : ' + e.message);
+  }
+});
+
+document.getElementById('exportJson').addEventListener('click', function(){
+  const pairs = window._externalTuples || window._generated;
+  if(!pairs){ alert('Aucun résultat à exporter.'); return; }
+  const blob = new Blob([JSON.stringify(pairs, null, 2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'mishloach_mamot_results.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('exportCsv').addEventListener('click', function(){
+  const pairs = window._externalTuples || window._generated;
+  if(!pairs){ alert('Aucun résultat à exporter.'); return; }
+  const lines = ['giver,receiver', ...pairs.map(p => `"${p.giver.replace(/"/g,'""')}","${p.receiver.replace(/"/g,'""')}"`)];
+  const blob = new Blob([lines.join('\n')],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'mishloach_mamot_results.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('copyResults').addEventListener('click', async function(){
+  const pairs = window._externalTuples || window._generated;
+  if(!pairs){ alert('Aucun résultat à copier.'); return; }
+  const text = pairs.map(p => `${p.giver} -> ${p.receiver}`).join('\\n');
+  try{
+    await navigator.clipboard.writeText(text);
+    alert('Résultats copiés dans le presse-papiers.');
+  }catch(e){
+    alert('Impossible de copier automatiquement. Sélectionne manuellement le texte.');
+  }
+});
+
+// expose helper on window for dev/tests
+window.generateDerangement = generateDerangement;
+window.loadTuples = loadTuples;
+
+</script>
+</body>
+</html>
